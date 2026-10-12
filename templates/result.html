@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %} Model Prediction Result {% endblock %}
+
+{% block content %}
+<div class="container py-5" style="position: relative;">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-md-11 col-sm-12">
+            <div class="card shadow-lg p-5 rounded-4 animated zoomIn" style="width: 100%;">
+                <h3 class="text-center fw-bold mb-4 animated fadeIn">Prediction Result</h3>
+
+                <div class="alert {% if prediction == 'Fake' %}alert-danger{% else %}alert-success{% endif %} text-center fw-semibold">
+                    Prediction: <span class="text-uppercase">{{ prediction }}</span>
+                </div>
+                <div class="alert alert-info text-center fw-semibold">
+                    Confidence: {{ confidence|round(2) }}%
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-12">
+                        {% if image_path %}
+                        <div class="text-center mb-4">
+                            <h5 class="mb-2">Original Image</h5>
+                            <img src="{{ url_for('static', filename=image_path) }}" class="img-fluid rounded-3 shadow-sm image-zoom mt-2" alt="Original Image" style="max-height: 300px;">
+                        </div>
+                        {% else %}
+                        <div class="alert alert-warning text-center">No original image available.</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if result_id %}
+                <form method="POST" action="{{ url_for('submit_feedback') }}" onsubmit="return showPopup();">
+                    <input type="hidden" name="result_id" value="{{ result_id }}">
+                    <div class="text-center my-3">
+                        <button type="submit" name="feedback" value="Satisfied" class="btn btn-outline-success btn-lg m-2" data-bs-toggle="tooltip" title="Great! The prediction was correct."> Satisfactory</button>
+                        <button type="submit" name="feedback" value="Unsatisfied" class="btn btn-outline-danger btn-lg m-2" data-bs-toggle="tooltip" title="Oh no! The model made a mistake."> Dissatisfactory</button>
+                    </div>
+                </form>
+                {% endif %}
+
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('upload') }}" class="btn btn-primary btn-lg animated growOnHover" data-bs-toggle="tooltip" title="Upload a new image for prediction!">Upload Another Image</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: linear-gradient(45deg, rgba(255, 107, 107, 0.6), rgba(255, 204, 0, 0.6), rgba(0, 188, 212, 0.6), rgba(63, 81, 181, 0.6));
+        background-size: 400% 400%;
+        animation: gradientBackground 10s ease infinite;
+    }
+
+    @keyframes gradientBackground {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .image-zoom:hover {
+        transform: scale(1.1);
+        transition: transform 0.3s ease;
+    }
+
+    .btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+</style>
+
+<script>
+    function showPopup() {
+        alert("Thank you for your feedback!");
+        return true;
+    }
+    
+    // Initialize tooltips
+    document.addEventListener('load', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
+</script>
+{% endblock %}

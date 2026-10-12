@@ -1,0 +1,48 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment variables / secrets
+.env
+.env.*
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploaded user files
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Generated Grad-CAM files
+static/gradcam/*
+!static/gradcam/.gitkeep
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Generated or local files
+run
+*.exe
+*.dll
+
+# Unverified model checkpoint
+best_ViT.pth

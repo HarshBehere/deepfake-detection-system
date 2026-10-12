@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %} Upload Image {% endblock %}
+
+{% block content %}
+<!-- Interactive Background Section with Translucent Colors -->
+<div class="container py-5" style="position: relative;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12"> <!-- Increased the column width to spread horizontally -->
+            <div class="card shadow-lg p-5 rounded-4 animated zoomIn" style="width: 100%;"> <!-- Increased padding for wider card -->
+                <h3 class="text-center fw-bold mb-4 animated fadeIn">Upload an Image</h3>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'danger' else 'warning' if category == 'warning' else 'success' }} alert-dismissible fade show rounded-3 animated fadeInUp" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                <!-- Upload Form -->
+                <form method="POST" enctype="multipart/form-data" class="animated fadeInUp">
+                    <div class="mb-3">
+                        <!-- Removed the individual file input block -->
+                    </div>
+
+                    <!-- Combined Drag-and-Drop and Choose File Area -->
+                    <div id="dragDropArea" class="drag-drop-area" onclick="triggerFileInput();">
+                        <h5>Choose a file or drag it here</h5>
+                        <p class="text-muted">Only PNG, JPG, and JPEG files are accepted. (Max size: 5MB)</p>
+                    </div>
+
+                    <!-- Hidden File Input -->
+                    <input type="file" id="formFile" name="file" accept=".png,.jpg,.jpeg" style="display: none;" onchange="previewImage(); validateFile();">
+
+                    <!-- Image Preview -->
+                    <div class="mb-3" id="imagePreviewContainer" style="display:none; display: flex; justify-content: center; align-items: center;">
+                        <h5>Image Preview:</h5>
+                        <img id="imagePreview" class="img-fluid rounded-3 shadow-sm image-zoom" alt="Image Preview" style="max-height: 300px; object-fit: cover;">
+                    </div>
+
+                    <!-- File Upload Progress -->
+                    <div class="progress my-4" id="progressContainer" style="height: 20px; display: none;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" id="uploadProgress" role="progressbar" style="width: 0%;">0%</div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg animated growOnHover" id="uploadBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload your image to check for deepfakes!">Upload</button>
+                    </div>
+                </form>
+
+                {% if uploaded_image %}
+                <div class="text-center mt-4">
+                    <h5 class="mb-3">Uploaded Image Preview:</h5>
+                    <img src="{{ uploaded_image }}" class="img-fluid rounded-3 shadow-sm image-zoom" alt="Uploaded Image" style="max-height: 300px;">
+                </div>
+                {% endif %}
+
+                <div class="text-center mt-4">
+                    <a href="{{ url_for('index') }}" class="btn btn-link fw-semibold text-decoration-none animated fadeIn">Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Animated Backgrounds -->
+<style>
+    /* Animated Color-changing Background */
+    body {
+        position: relative;
+        height: 100vh;
+        margin: 0;
+        background: linear-gradient(45deg, rgba(255, 107, 107, 0.6), rgba(255, 204, 0, 0.6), rgba(0, 188, 212, 0.6), rgba(63, 81, 181, 0.6));
+        background-size: 400% 400%;
+        animation: gradientBackground 10s ease infinite;
+    }
+
+    @keyframes gradientBackground {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Zoom Effect for Uploaded Image */
+    .image-zoom:hover {
+        transform: scale(1.1);
+        transition: transform 0.3s ease;
+    }
+
+    /* Hover Effects for Button */
+    .btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* File Input Border when Invalid */
+    .is-invalid {
+        border-color: #dc3545;
+    }
+
+    /* Animated Tooltip on Button */
+    .btn-lg {
+        animation: fadeIn 1s ease-out;
+    }
+
+    /* Combined Drag-and-Drop and Choose File Area Styling */
+    .drag-drop-area {
+        border: 2px dashed #007bff;
+        padding: 40px;
+        border-radius: 10px;
+        cursor: pointer;
+        background-color: #f8f9fa;
+        text-align: center;
+        margin-top: 20px;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .drag-drop-area:hover {
+        background-color: #e9ecef;
+        border-color: #28a745;
+    }
+
+    .drag-drop-area.dragging {
+        background-color: #f8d7da;
+        border-color: #dc3545;
+    }
+
+    /* Smooth Transition for Form Inputs */
+    input[type="file"] {
+        transition: border-color 0.3s ease;
+    }
+
+    /* Progress Bar Smooth Animation */
+    #progressContainer {
+        display: none;
+        animation: fadeIn 1s ease-out forwards;
+    }
+
+    /* Keyframes for Grow and Hover */
+    @keyframes growOnHover {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.1); }
+    }
+
+    /* Tooltip Animation */
+    @keyframes fadeIn {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
+    }
+
+    /* File Validation Error Styles */
+    #fileErrorMessage {
+        display: none;
+    }
+</style>
+
+<script>
+    // Trigger the file input dialog when drag-drop area is clicked
+    function triggerFileInput() {
+        document.getElementById("formFile").click();
+    }
+
+    // File Preview Functionality
+    function previewImage() {
+        var file = document.getElementById("formFile").files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                // Set the image preview source
+                document.getElementById("imagePreview").src = e.target.result;
+    
+                // Display the preview container and center it with flex
+                document.getElementById("imagePreviewContainer").style.display = "flex";
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // File Validation Function
+    function validateFile() {
+        var file = document.getElementById("formFile").files[0];
+        var fileErrorMessage = document.getElementById("fileErrorMessage");
+        var formFileInput = document.getElementById("formFile");
+
+        if (file) {
+            if (file.size > 5242880) { // 5MB size limit
+                fileErrorMessage.style.display = "block";
+                fileErrorMessage.innerHTML = "File size exceeds 5MB. Please upload a smaller file.";
+                formFileInput.classList.add("is-invalid");
+                document.getElementById("uploadBtn").disabled = true;
+            } else {
+                fileErrorMessage.style.display = "none";
+                formFileInput.classList.remove("is-invalid");
+                document.getElementById("uploadBtn").disabled = false;
+            }
+        }
+    }
+
+    // Combined Drag-and-Drop File Upload with Choose File
+    var dragDropArea = document.getElementById("dragDropArea");
+
+    dragDropArea.addEventListener("dragover", function(e) {
+        e.preventDefault();
+        dragDropArea.classList.add("dragging");
+    });
+
+    dragDropArea.addEventListener("dragleave", function(e) {
+        e.preventDefault();
+        dragDropArea.classList.remove("dragging");
+    });
+
+    dragDropArea.addEventListener("drop", function(e) {
+        e.preventDefault();
+        var file = e.dataTransfer.files[0];
+        document.getElementById("formFile").files = e.dataTransfer.files;
+        previewImage();
+        dragDropArea.classList.remove("dragging");
+    });
+
+    // Enable Tooltips
+    var tooltipTriggerList = Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function(tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+</script>
+
+{% if file_uploaded %}
+<script>
+    document.getElementById("progressContainer").style.display = "block";
+    var progressBar = document.getElementById("uploadProgress");
+    var width = 0;
+    var interval = setInterval(function() {
+        if (width >= 100) {
+            clearInterval(interval);
+            window.location.href = "{{ url_for('result') }}";
+        } else {
+            width++;
+            progressBar.style.width = width + '%';
+            progressBar.innerHTML = width + '%';
+        }
+    }, 50);
+</script>
+{% endif %}
+{% endblock %}

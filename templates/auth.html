@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %} {{ title }} {% endblock %}
+{% block content %}
+<div class="container-fluid py-5" style="position: relative;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10 col-sm-12">
+            <div class="card shadow-lg p-5 rounded-4 animated zoomIn" style="width: 100%;">
+                
+                <form action="{{ request.path }}" method="POST" class="card-body">
+                    {{ form.csrf_token }}
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold">Access Portal to TRUEVISION</h2>
+                        <h5 class="text-primary">{{ text }}</h5>
+                    </div>
+
+                    {% if request.path == '/register/' %}
+                    <div class="form-group mb-3">
+                        {{ form.username(class_="form-control", placeholder="Username") }}
+                    </div>
+                    {% for error in form.username.errors %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        {{ error }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    
+                    <div class="form-group mb-3">
+                        {{ form.email(class_="form-control", placeholder="Email") }}
+                    </div>
+                    {% for error in form.email.errors %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        {{ error }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+
+                    <div class="form-group mb-3">
+                        {{ form.pwd(class_="form-control", placeholder="Password") }}
+                    </div>
+                    {% for error in form.pwd.errors %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        {{ error }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+
+                    {% if request.path == '/register/' %}
+                    <div class="form-group mb-3">
+                        {{ form.cpwd(class_="form-control", placeholder="Confirm Password") }}
+                    </div>
+                    {% for error in form.cpwd.errors %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        {{ error }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    <div class="text-center">
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-block btn-primary mb-3"> {{ btn_action }} </button>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        {% if request.path != '/register/' %}
+                        New here? <a href="{{ url_for('register') }}">Create account</a>
+                        {% else %}
+                        Already have an account? <a href="{{ url_for('login') }}">Login</a>
+                        {% endif %}
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Animated Backgrounds -->
+<style>
+    /* Animated Color-changing Background */
+    body {
+        position: relative;
+        height: 100vh;
+        margin: 0;
+        background: linear-gradient(45deg, rgba(255, 107, 107, 0.6), rgba(255, 204, 0, 0.6), rgba(0, 188, 212, 0.6), rgba(63, 81, 181, 0.6));
+        background-size: 400% 400%;
+        animation: gradientBackground 10s ease infinite;
+    }
+
+    @keyframes gradientBackground {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Zoom Effect for Card */
+    .zoomIn {
+        animation: zoomIn 1s ease-out;
+    }
+
+    @keyframes zoomIn {
+        0% {
+            transform: scale(0.9);
+            opacity: 0;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* FadeIn Animation for Text */
+    .fadeIn {
+        animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
+    }
+
+    /* BounceIn Animation for Buttons */
+    .bounceIn {
+        animation: bounceIn 1s ease-out;
+    }
+
+    @keyframes bounceIn {
+        0% { transform: translateY(-30px); opacity: 0; }
+        60% { transform: translateY(10px); opacity: 1; }
+        100% { transform: translateY(0); }
+    }
+
+    /* Hover Effects for Button */
+    .btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+</style>
+
+{% endblock %}
